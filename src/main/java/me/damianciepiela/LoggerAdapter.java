@@ -15,9 +15,11 @@ public class LoggerAdapter {
     }
 
     public void debug(Object toLog) {
-        if(this.logger.isDebugEnabled()) {
-            this.logger.debug(toLog);
-        }
+        if(this.logger.isDebugEnabled()) this.logger.debug(toLog);
+    }
+
+    public void error(Object toLog) {
+        this.logger.error(toLog);
     }
 
 
