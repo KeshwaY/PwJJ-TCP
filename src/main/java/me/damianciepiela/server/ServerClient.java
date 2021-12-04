@@ -4,9 +4,8 @@ import me.damianciepiela.Connection;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Base64;
 
-public class ServerClient {
+public class ServerClient implements Connection {
 
     private final Socket socket;
     private final DataInputStream inFromClient;
@@ -23,11 +22,11 @@ public class ServerClient {
     }
 
     public String getFrom() throws IOException {
-        return Connection.getFrom(this.inFromClient);
+        return Connection.getFromSource(this.inFromClient);
     }
 
     public void sendTo(String text) throws IOException {
-        Connection.sendTo(this.outToClient, text);
+        Connection.sendToSource(this.outToClient, text);
     }
 
     public void setId(String id) {

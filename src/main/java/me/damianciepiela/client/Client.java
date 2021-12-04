@@ -6,7 +6,7 @@ import me.damianciepiela.LoggerAdapter;
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class Client implements Connection{
     private final LoggerAdapter logger;
     private final Socket socket;
 
@@ -31,11 +31,11 @@ public class Client {
     }
 
     public String getFrom() throws IOException, ClassNotFoundException {
-        return Connection.getFrom(this.inFromServer);
+        return Connection.getFromSource(this.inFromServer);
     }
 
     public void sendTo(String text) throws IOException {
-        Connection.sendTo(this.outToServer, text);
+        Connection.sendToSource(this.outToServer, text);
     }
 
     public void close() throws IOException {

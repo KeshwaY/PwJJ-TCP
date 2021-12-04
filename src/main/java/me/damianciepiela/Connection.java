@@ -4,12 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public final class Connection {
-    public static void sendTo(DataOutputStream dataOutputStream, String text) throws IOException {
+public interface Connection {
+    static void sendToSource(DataOutputStream dataOutputStream, String text) throws IOException {
         dataOutputStream.writeUTF(text);
     }
 
-    public static String getFrom(DataInputStream dataInputStream) throws IOException {
+    static String getFromSource(DataInputStream dataInputStream) throws IOException {
         return dataInputStream.readUTF();
     }
 }
