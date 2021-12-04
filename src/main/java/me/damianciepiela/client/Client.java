@@ -26,4 +26,8 @@ public class Client {
         outToServer.close();
         inFromServer.close();
     }
+
+    public void close() throws IOException {
+        this.socket.close();
+    }
 }

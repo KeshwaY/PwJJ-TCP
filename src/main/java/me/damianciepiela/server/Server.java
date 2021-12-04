@@ -34,4 +34,8 @@ public class Server {
         }
     }
 
+    public void close() throws IOException {
+        this.serverSocket.close();
+    }
+
 }
