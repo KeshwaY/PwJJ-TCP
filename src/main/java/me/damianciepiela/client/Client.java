@@ -1,23 +1,29 @@
 package me.damianciepiela.client;
 
+import me.damianciepiela.LoggerAdapter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 public class Client {
-    private Socket socket;
+    private final LoggerAdapter logger;
+    private final Socket socket;
 
-    public Client(String address, int port) throws IOException {
+    public Client(String address, int port, LoggerAdapter logger) throws IOException {
+        this.logger = logger;
         this.socket = new Socket(address, port);
+        this.logger.debug("Client created.");
     }
 
     public void test() throws IOException {
         DataOutputStream outToServer = new DataOutputStream(this.socket.getOutputStream());
-        outToServer.writeUTF("ASD");
+        outToServer.writeUTF("From client");
         outToServer.flush();
         DataInputStream inFromServer = new DataInputStream(this.socket.getInputStream());
-        System.out.println(inFromServer.readUTF());
+        this.logger.info("Data from server: " + inFromServer.readUTF());
         outToServer.close();
         inFromServer.close();
     }

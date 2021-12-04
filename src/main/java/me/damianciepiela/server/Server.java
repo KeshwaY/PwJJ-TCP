@@ -1,4 +1,6 @@
 package me.damianciepiela.server;
+import me.damianciepiela.LoggerAdapter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,23 +9,25 @@ import java.net.Socket;
 
 public class Server {
 
-    private ServerSocket serverSocket;
+    private final LoggerAdapter logger;
+    private final ServerSocket serverSocket;
 
-    public Server(int port) throws IOException {
+    public Server(int port, LoggerAdapter logger) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        System.out.println("Server created");
+        this.logger = logger;
+        this.logger.debug("Server created.");
     }
 
     public void start() throws IOException {
-        System.out.println("Server starting...");
-        System.out.println("Server waiting for connections...");
+        this.logger.info("Server starting on port: " + this.serverSocket.getLocalPort() + "...");
+        this.logger.info("Server waiting for connections...");
         while (!serverSocket.isClosed()) {
             Socket client = serverSocket.accept();
-            System.out.println(client);
+            this.logger.info("Client connected, address: " + client.getInetAddress());
             DataInputStream inFromClient = new DataInputStream(client.getInputStream());
             DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());
-            System.out.println(inFromClient.readUTF());
-            outToClient.writeUTF("Test");
+            this.logger.info("Client response: " + inFromClient.readUTF());
+            outToClient.writeUTF("From server");
             outToClient.flush();
             inFromClient.close();
             outToClient.close();
