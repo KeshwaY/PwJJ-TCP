@@ -10,6 +10,10 @@ public class LoggerAdapter {
         this.logger = LogManager.getLogger(clazz);
     }
 
+    public String getName() {
+        return this.logger.getName();
+    }
+
     public void info(Object toLog) {
         this.logger.info(toLog);
     }

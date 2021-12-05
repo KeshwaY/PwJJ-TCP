@@ -1,12 +1,13 @@
 package me.damianciepiela.client;
 
+import me.damianciepiela.Closable;
 import me.damianciepiela.Connection;
 import me.damianciepiela.LoggerAdapter;
 
 import java.io.*;
 import java.net.Socket;
 
-public class Client implements Connection{
+public class Client implements Connection, Closable {
     private final LoggerAdapter logger;
     private final Socket socket;
 
