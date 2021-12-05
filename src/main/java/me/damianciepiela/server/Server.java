@@ -1,26 +1,28 @@
 package me.damianciepiela.server;
-import me.damianciepiela.Closable;
-import me.damianciepiela.LoggerAdapter;
+import me.damianciepiela.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
 
-public class Server implements Closable {
+public class Server implements Closable, ReadQuestions {
 
     private final LoggerAdapter logger;
     private final ServerSocket serverSocket;
 
-    private final ExecutorService executorService;
+    private final ThreadManager threadManager;
+    private List<Question> questions;
 
-
-    public Server(int port, LoggerAdapter logger, int capacity) throws IOException {
+    public Server(int port, LoggerAdapter logger, ThreadManager threadManager) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.logger = logger;
-        this.executorService = Executors.newFixedThreadPool(capacity);
+        this.threadManager = threadManager;
         this.logger.debug("Server created.");
+    }
+
+    public void loadQuestions(String fileName) throws IOException {
+        this.questions = ReadQuestions.loadQuestionsFromFile(fileName);
     }
 
     public void start() {
