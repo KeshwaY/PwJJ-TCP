@@ -15,7 +15,6 @@ public interface ReadQuestions {
         while( (line = bufferedReader.readLine()) != null ) {
             List<String> splitByWhiteSpace = Arrays.stream(line.split(" "))
                     .collect(Collectors.toList());
-            //TODO: create custom execution
             if (splitByWhiteSpace.size() != 5) throw new QuestionFormattingException("Question does not have 4 answers");
             String description = splitByWhiteSpace.remove(0);
             Optional<String> correctAnswer = splitByWhiteSpace.stream()
