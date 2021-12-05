@@ -21,7 +21,7 @@ public class Main {
      static void server(int port, int capacity) {
          LoggerAdapter loggerAdapter = createLogger(Server.class);
          try {
-             ThreadManager threadManager = new ThreadManager(new LoggerAdapter(ThreadManager.class), capacity);
+             ThreadManager threadManager = new ThreadManager(createLogger(ThreadManager.class), capacity);
              Server server = new Server(port, loggerAdapter, threadManager);
              server.loadQuestions("Pytania.txt");
              server.start();
