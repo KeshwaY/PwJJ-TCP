@@ -18,11 +18,12 @@ public class Server implements Closable, ReadQuestions {
         this.serverSocket = new ServerSocket(port);
         this.logger = logger;
         this.threadManager = threadManager;
-        this.logger.debug("Server created.");
+        this.logger.info("Server created.");
     }
 
     public void loadQuestions(String fileName) throws QuestionFormattingException, IOException {
         this.questions = ReadQuestions.loadQuestionsFromFile(fileName);
+        this.logger.debug("Questions from file: " + fileName + " loaded");
     }
 
     public void start() {
@@ -32,13 +33,22 @@ public class Server implements Closable, ReadQuestions {
             try {
                 Socket socket = serverSocket.accept();
                 this.logger.info("Client connected, address: " + socket.getInetAddress());
-                ServerClient client = new ServerClient(socket);
-                System.out.println(client.getFrom());
-                client.sendTo("ASD");
+                ServerClient client = this.threadManager.createClient(socket, this.questions);
+                this.logger.info("Client connection established");
+                this.logger.info("Getting identity from client...");
+                client.setId(client.getFrom());
+                client.setName(client.getFrom());
+                client.setSurname(client.getFrom());
+                this.threadManager.execute(client);
+                getActiveCount();
             } catch (IOException e) {
                this.logger.error(e);
             }
         }
+    }
+
+    private void getActiveCount() {
+        this.logger.info("Clients active: " + this.threadManager.getTotalActive());
     }
 
     public void close() throws IOException {
