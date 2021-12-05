@@ -21,7 +21,9 @@ public class Main {
      static void server(int port, int capacity) {
          LoggerAdapter loggerAdapter = createLogger(Server.class);
          try {
-             Server server = new Server(port, loggerAdapter, capacity);
+             ThreadManager threadManager = new ThreadManager(capacity);
+             Server server = new Server(port, loggerAdapter, threadManager);
+             server.loadQuestions("Pytania.txt");
              server.start();
              shutDownHook(server, loggerAdapter);
         } catch (IOException e) {

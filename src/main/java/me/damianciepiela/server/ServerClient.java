@@ -5,7 +5,7 @@ import me.damianciepiela.Connection;
 import java.io.*;
 import java.net.Socket;
 
-public class ServerClient implements Connection {
+public class ServerClient implements Runnable, Connection {
 
     private final Socket socket;
     private final DataInputStream inFromClient;
@@ -47,4 +47,8 @@ public class ServerClient implements Connection {
         this.socket.close();
     }
 
+    @Override
+    public void run() {
+
+    }
 }
