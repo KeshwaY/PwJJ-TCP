@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public interface Connection {
+
+    //TODO: handle sending maps
     static void sendToSource(DataOutputStream dataOutputStream, String text) throws IOException {
         dataOutputStream.writeUTF(text);
     }

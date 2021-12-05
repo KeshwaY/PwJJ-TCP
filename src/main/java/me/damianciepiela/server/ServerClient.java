@@ -7,6 +7,7 @@ import me.damianciepiela.Question;
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
+import java.util.Map;
 
 // TODO: change to callable
 // TODO: probably remove check connection to rely on try catch blocks
@@ -20,7 +21,7 @@ public class ServerClient implements Runnable, Connection {
     private final DataOutputStream outToClient;
 
     private volatile ClientConnectionEvent connection;
-    private volatile int score = 0;
+    private int score = 0;
 
     private String id;
     private String name;
@@ -93,19 +94,47 @@ public class ServerClient implements Runnable, Connection {
         this.socket.close();
         changeConncetionAndUpdate(ClientConnectionEvent.DISCONENCTED);
         this.logger.info("Client connection closed");
+        this.logger.debug("Client ID: " + this.id + " score: " + this.score);
     }
 
     @Override
     public void run() {
         while (connection.equals(ClientConnectionEvent.ALIVE)) {
-            try {
-                checkConnection();
+            try{
+                sendQuestionCount();
+                for(Question question : this.questions) {
+                    showQuestion(question);
+                    getAnswerAndCheck(question);
+                }
+                quit();
+                return;
             } catch (IOException e) {
                 this.logger.error(e);
                 break;
             }
         }
         changeConncetionAndUpdate(ClientConnectionEvent.LOST);
+    }
+
+    public void sendQuestionCount() throws IOException {
+        checkConnection();
+        sendTo(String.valueOf(this.questions.size()));
+    }
+
+    public void showQuestion(Question question) throws IOException {
+        checkConnection();
+        sendTo(question.getDescription());
+        for(Map.Entry<String, String> entry: question.getAnswers().entrySet()) {
+            sendTo(entry.getKey());
+            sendTo(entry.getValue());
+        }
+    }
+
+    public void getAnswerAndCheck(Question question) throws IOException {
+        checkConnection();
+        String answer = getFrom();
+        if (!question.getAnswers().containsKey(answer)) throw new IOException();
+        if(question.getCorrectAnswer().equals(answer)) this.score++;
     }
 
     private void checkConnection() throws IOException {
