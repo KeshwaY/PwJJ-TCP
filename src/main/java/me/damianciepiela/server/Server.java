@@ -34,6 +34,7 @@ public class Server implements Closable, ReadQuestions {
                 Socket socket = serverSocket.accept();
                 this.logger.info("Client connected, address: " + socket.getInetAddress());
                 ServerClient client = this.threadManager.createClient(socket, this.questions);
+                if(client == null) continue;
                 this.logger.info("Client connection established");
                 this.logger.info("Getting identity from client...");
                 client.setId(client.getFrom());
