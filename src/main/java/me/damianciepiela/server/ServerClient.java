@@ -94,7 +94,7 @@ public class ServerClient implements Runnable, Connection {
         this.socket.close();
         changeConncetionAndUpdate(ClientConnectionEvent.DISCONENCTED);
         this.logger.info("Client connection closed");
-        this.logger.debug("Client ID: " + this.id + " score: " + this.score);
+        this.logger.debug("Client ID: " + this.id + " score: " + this.score + " / " + this.questions.size());
     }
 
     @Override
