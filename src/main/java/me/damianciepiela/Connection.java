@@ -12,7 +12,7 @@ public interface Connection {
     static String getFromSource(DataInputStream dataInputStream) throws IOException {
         return dataInputStream.readUTF();
     }
-
+// TODO: Secure connection, change ping to something else maybe sha256 encrypted string
     static boolean checkIfSourceIsActive(DataOutputStream dataOutputStream, DataInputStream dataInputStream) throws IOException {
         sendToSource(dataOutputStream, "ping");
         String fromSource = getFromSource(dataInputStream);

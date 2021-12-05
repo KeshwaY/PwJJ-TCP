@@ -27,6 +27,7 @@ public class Client implements Connection, Closable {
         this.logger.info("Client created.");
     }
 
+    // TODO: change to bufferedreader?
     public void setIdentity() throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Podaj numer albumu: ");

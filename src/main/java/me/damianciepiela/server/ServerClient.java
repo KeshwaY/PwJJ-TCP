@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.List;
 
 // TODO: change to callable
+// TODO: probably remove check connection to rely on try catch blocks
 public class ServerClient implements Runnable, Connection {
 
     private final LoggerAdapter logger;
@@ -18,7 +19,7 @@ public class ServerClient implements Runnable, Connection {
     private final DataInputStream inFromClient;
     private final DataOutputStream outToClient;
 
-    private volatile boolean connected;
+    private volatile ClientConnectionEvent connection;
     private volatile int score = 0;
 
     private String id;
@@ -26,9 +27,9 @@ public class ServerClient implements Runnable, Connection {
     private String surrname;
 
     public interface Observer {
-        void update(String event);
+        void update(ClientConnectionEvent connectionEvent);
     }
-    private Observer observer;
+    private final Observer observer;
 
     public ServerClient(Socket socket, LoggerAdapter logger, List<Question> questions, Observer observer) throws IOException {
         this.socket = socket;
@@ -36,7 +37,7 @@ public class ServerClient implements Runnable, Connection {
         this.questions = questions;
         this.inFromClient = new DataInputStream(socket.getInputStream());
         this.outToClient = new DataOutputStream(socket.getOutputStream());
-        this.connected = true;
+        this.connection = ClientConnectionEvent.ALIVE;
         this.observer = observer;
         this.logger.info("Client created");
     }
@@ -52,20 +53,17 @@ public class ServerClient implements Runnable, Connection {
         Connection.sendToSource(this.outToClient, text);
     }
 
-    public void setId(String id) {
-        this.logger.debug("Changing id to: " + id);
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.logger.debug("Changing name to: " + name);
-        this.name = name;
-    }
-
-    public void setSurname(String surname) {
-        this.logger.debug("Changing surname to: " + surname);
-        this.surrname = surname;
-    }
+   public void getIdentity() {
+       this.logger.info("Getting identity from client...");
+       try {
+           this.id = getFrom();
+           this.name = getFrom();
+           this.surrname = getFrom();
+       } catch (IOException e) {
+           this.logger.error(e);
+           changeConncetionAndUpdate(ClientConnectionEvent.LOST);
+       }
+   }
 
     public String getId() {
         return id;
@@ -79,16 +77,27 @@ public class ServerClient implements Runnable, Connection {
         return surrname;
     }
 
+    public ClientConnectionEvent getConnection() {
+        return connection;
+    }
+
+    private void changeConncetionAndUpdate(ClientConnectionEvent connectionEvent) {
+        this.connection = connectionEvent;
+        this.logger.info("Client connection changed to: " + connectionEvent);
+        this.observer.update(connection);
+    }
+
     public void quit() throws IOException {
         this.inFromClient.close();
         this.outToClient.close();
         this.socket.close();
+        changeConncetionAndUpdate(ClientConnectionEvent.DISCONENCTED);
         this.logger.info("Client connection closed");
     }
 
     @Override
     public void run() {
-        while (connected) {
+        while (connection.equals(ClientConnectionEvent.ALIVE)) {
             try {
                 checkConnection();
             } catch (IOException e) {
@@ -96,12 +105,12 @@ public class ServerClient implements Runnable, Connection {
                 break;
             }
         }
-        observer.update("Close connection");
+        changeConncetionAndUpdate(ClientConnectionEvent.LOST);
     }
 
     private void checkConnection() throws IOException {
-        this.connected = Connection.checkIfSourceIsActive(this.outToClient, this.inFromClient);
+        boolean connectionStatus = Connection.checkIfSourceIsActive(this.outToClient, this.inFromClient);
         //this.logger.debug("Client on " + this.socket.getInetAddress() + " connection status: " + this.connected);
-        if(!connected) throw new IOException();
+        if(!connectionStatus) changeConncetionAndUpdate(ClientConnectionEvent.LOST);
     }
 }

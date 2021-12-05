@@ -1,5 +1,6 @@
 package me.damianciepiela;
 
+import me.damianciepiela.server.ClientConnectionEvent;
 import me.damianciepiela.server.ServerClient;
 
 import java.io.IOException;
@@ -33,11 +34,14 @@ public class ThreadManager {
             return null;
         }
         ServerClient serverClient = new ServerClient(socket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {
-            this.logger.info("Client disconnected");
-            decreaseCurrentSize();
+            if(event.equals(ClientConnectionEvent.DISCONENCTED) || event.equals(ClientConnectionEvent.LOST)) {
+                decreaseCurrentSize();
+                logTotalCurrentlyActive();
+            }
         });
         this.logger.info("Client object created");
         increaseCurrentSize();
+        logTotalCurrentlyActive();
         return serverClient;
     }
 
@@ -61,5 +65,9 @@ public class ThreadManager {
     public void increaseCurrentSize() {
         this.logger.debug("Increasing client active count...");
         this.currentSize++;
+    }
+
+    public void logTotalCurrentlyActive() {
+        this.logger.info("Clients currently active: " + getTotalActive());
     }
 }

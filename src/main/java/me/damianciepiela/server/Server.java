@@ -34,22 +34,14 @@ public class Server implements Closable, ReadQuestions {
                 Socket socket = serverSocket.accept();
                 this.logger.info("Client connected, address: " + socket.getInetAddress());
                 ServerClient client = this.threadManager.createClient(socket, this.questions);
-                if(client == null) continue;
+                client.getIdentity();
+                if(!client.getConnection().equals(ClientConnectionEvent.ALIVE)) continue;
                 this.logger.info("Client connection established");
-                this.logger.info("Getting identity from client...");
-                client.setId(client.getFrom());
-                client.setName(client.getFrom());
-                client.setSurname(client.getFrom());
                 this.threadManager.execute(client);
-                getActiveCount();
             } catch (IOException e) {
                this.logger.error(e);
             }
         }
-    }
-
-    private void getActiveCount() {
-        this.logger.info("Clients active: " + this.threadManager.getTotalActive());
     }
 
     public void close() throws IOException {

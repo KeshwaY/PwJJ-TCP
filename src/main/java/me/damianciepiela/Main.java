@@ -49,6 +49,7 @@ public class Main {
     public static void main(String[] args) {
         if (args.length == 0) return;
 
+        // TODO: change static values to args interpretation
         if(args[0].equals("Client")) {
             client("localhost", 887);
         }
