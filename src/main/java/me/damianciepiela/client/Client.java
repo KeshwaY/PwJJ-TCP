@@ -6,8 +6,11 @@ import me.damianciepiela.LoggerAdapter;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
+//TODO: create enum for server connection
 public class Client implements Connection, Closable {
     private final LoggerAdapter logger;
     private final Socket socket;
@@ -49,13 +52,45 @@ public class Client implements Connection, Closable {
     public void start() {
         try {
             setIdentity();
+            int questionCount = getQuestionCount();
             while(connected) {
-                checkConnection();
+                for(int i = 0; i < questionCount; i++) {
+                    System.out.println(getQuestion());
+                    Map<String, String> answers = getAnswers();
+                    for(Map.Entry<String, String> entry : answers.entrySet()) {
+                        System.out.println("[" + entry.getKey() + "] " + entry.getValue());
+                    }
+                    checkConnection();
+                    sendTo("b");
+                }
+                close();
             }
         } catch (IOException e) {
             this.logger.error(e);
         }
     }
+
+    private String getQuestion() throws IOException {
+        checkConnection();
+        return getFrom();
+    }
+
+    private Map<String, String> getAnswers() throws IOException {
+        Map<String, String> questions = new HashMap<>();
+        for(int i = 0; i < 4; i++) {
+            String key = getFrom();
+            String value = getFrom();
+            questions.put(key, value);
+        }
+        if (questions.size() != 4) throw new IOException();
+        return questions;
+    }
+
+    private int getQuestionCount() throws IOException {
+        checkConnection();
+        return Integer.parseInt(getFrom());
+    }
+
 
     public String getFrom() throws IOException {
         String fromServer = Connection.getFromSource(this.inFromServer);
@@ -70,6 +105,8 @@ public class Client implements Connection, Closable {
 
     public void checkConnection() throws IOException {
         this.connected = Connection.refreshConnection(this.outToServer, this.inFromServer);
+        // TODO: change this to custom exception
+        if(!connected) throw new IOException();
         //this.logger.debug("Server on " + this.socket.getInetAddress() + " connection status: " + this.connected);
     }
 
