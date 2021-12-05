@@ -7,9 +7,9 @@ public class Question {
     private final String correctAnswer;
     private final Map<String, String> answers;
 
-    public Question(String description, String correctAnswear, Map<String, String> allAnswers) {
+    public Question(String description, String correctAnswers, Map<String, String> allAnswers) {
         this.description = description;
-        this.correctAnswer = correctAnswear;
+        this.correctAnswer = correctAnswers;
         this.answers = allAnswers;
     }
 
