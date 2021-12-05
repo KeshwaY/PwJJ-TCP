@@ -21,7 +21,7 @@ public class Server implements Closable, ReadQuestions {
         this.logger.debug("Server created.");
     }
 
-    public void loadQuestions(String fileName) throws IOException {
+    public void loadQuestions(String fileName) throws QuestionFormattingException, IOException {
         this.questions = ReadQuestions.loadQuestionsFromFile(fileName);
     }
 

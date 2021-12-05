@@ -26,7 +26,7 @@ public class Main {
              server.loadQuestions("Pytania.txt");
              server.start();
              shutDownHook(server, loggerAdapter);
-        } catch (IOException e) {
+        } catch (IOException | QuestionFormattingException e) {
             loggerAdapter.error(e);
          }
      }
