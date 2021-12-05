@@ -1,13 +1,13 @@
 package me.damianciepiela;
 
-import java.util.List;
+import java.util.Map;
 
 public class Question {
     private final String description;
     private final String correctAnswer;
-    private final List<String> answers;
+    private final Map<String, String> answers;
 
-    public Question(String description, String correctAnswear, List<String> allAnswers) {
+    public Question(String description, String correctAnswear, Map<String, String> allAnswers) {
         this.description = description;
         this.correctAnswer = correctAnswear;
         this.answers = allAnswers;
@@ -17,7 +17,7 @@ public class Question {
         return description;
     }
 
-    public List<String> getAnswers() {
+    public Map<String, String> getAnswers() {
         return answers;
     }
 

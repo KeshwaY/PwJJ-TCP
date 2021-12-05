@@ -21,14 +21,22 @@ public interface ReadQuestions {
             Optional<String> correctAnswer = splitByWhiteSpace.stream()
                     .filter(answer -> answer.contains("*"))
                     .findFirst()
-                    .map(answer -> answer.substring(answer.indexOf("[") + 1, answer.indexOf("]")));
+                    .map(ReadQuestions::getKey);
 
             if(correctAnswer.isEmpty()) return null;
-            List<String> allQuestions = splitByWhiteSpace.stream()
+            Map<String, String> allQuestions = splitByWhiteSpace.stream()
                     .map(answer -> answer.replace("*", ""))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toMap(ReadQuestions::getKey, ReadQuestions::getValue));
             questions.add(new Question(description, correctAnswer.get(), allQuestions));
         }
         return questions;
+    }
+
+    static String getKey(String answer) {
+        return answer.substring(answer.indexOf("[") + 1, answer.indexOf("]"));
+    }
+
+    static String getValue(String answer) {
+        return answer.substring(answer.indexOf("]") + 1);
     }
 }
