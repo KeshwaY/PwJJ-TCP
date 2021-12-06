@@ -99,21 +99,24 @@ public class ServerClient implements Runnable, Connection {
 
     @Override
     public void run() {
-        while (connection.equals(ClientConnectionEvent.ALIVE)) {
-            try{
-                sendQuestionCount();
-                for(Question question : this.questions) {
-                    showQuestion(question);
-                    getAnswerAndCheck(question);
-                }
-                quit();
-                return;
-            } catch (IOException e) {
-                this.logger.error(e);
-                break;
+        try{
+            sendQuestionCount();
+            for(Question question : this.questions) {
+                showQuestion(question);
+                getAnswerAndCheck(question);
             }
+            sendScore();
+            quit();
+            return;
+        } catch (IOException e) {
+            this.logger.error(e);
         }
         changeConncetionAndUpdate(ClientConnectionEvent.LOST);
+    }
+
+    public void sendScore() throws IOException {
+        checkConnection();
+        sendTo(this.score + " / " + this.questions.size());
     }
 
     public void sendQuestionCount() throws IOException {

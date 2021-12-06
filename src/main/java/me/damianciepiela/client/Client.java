@@ -63,11 +63,17 @@ public class Client implements Connection, Closable {
                     checkConnection();
                     sendTo("b");
                 }
+                System.out.println(getScore());
                 close();
             }
         } catch (IOException e) {
             this.logger.error(e);
         }
+    }
+
+    private String getScore() throws IOException {
+        checkConnection();
+        return getFrom();
     }
 
     private String getQuestion() throws IOException {

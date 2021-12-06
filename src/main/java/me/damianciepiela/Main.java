@@ -38,7 +38,7 @@ public class Main {
      static void shutDownHook(Closable closable, LoggerAdapter logger) {
          Runtime.getRuntime().addShutdownHook(new Thread(() -> {
              try {
-                 logger.info(logger.getName() + "is shutting down...");
+                 logger.info(logger.getName() + " is shutting down...");
                  closable.close();
              } catch (IOException e) {
                  e.printStackTrace();
