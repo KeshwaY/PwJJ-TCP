@@ -60,8 +60,13 @@ public class Client implements Connection, Closable {
                     for(Map.Entry<String, String> entry : answers.entrySet()) {
                         System.out.println("[" + entry.getKey() + "] " + entry.getValue());
                     }
-                    checkConnection();
-                    sendTo("b");
+                    String userInput;
+                    while (true) {
+                        Scanner scanner = new Scanner(System.in);
+                        userInput = scanner.next();
+                        if (answers.containsKey(userInput)) break;
+                    }
+                    sendAnswer(userInput);
                 }
                 System.out.println(getScore());
                 close();
@@ -69,6 +74,11 @@ public class Client implements Connection, Closable {
         } catch (IOException e) {
             this.logger.error(e);
         }
+    }
+
+    private void sendAnswer(String answer) throws IOException {
+        checkConnection();
+        sendTo(answer);
     }
 
     private String getScore() throws IOException {
