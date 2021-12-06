@@ -6,12 +6,14 @@ import me.damianciepiela.Question;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 // TODO: change to callable
 // TODO: probably remove check connection to rely on try catch blocks
-public class ServerClient implements Runnable, Connection {
+public class ServerClient implements Callable<ClientAnswers>, Connection {
 
     private final LoggerAdapter logger;
     private final List<Question> questions;
@@ -23,9 +25,11 @@ public class ServerClient implements Runnable, Connection {
     private volatile ClientConnectionEvent connection;
     private int score = 0;
 
+    private final List<String> answers = new ArrayList<>();
+
     private String id;
     private String name;
-    private String surrname;
+    private String surname;
 
     public interface Observer {
         void update(ClientConnectionEvent connectionEvent);
@@ -59,10 +63,10 @@ public class ServerClient implements Runnable, Connection {
        try {
            this.id = getFrom();
            this.name = getFrom();
-           this.surrname = getFrom();
+           this.surname = getFrom();
        } catch (IOException e) {
            this.logger.error(e);
-           changeConncetionAndUpdate(ClientConnectionEvent.LOST);
+           changeConnectionAndUpdate(ClientConnectionEvent.LOST);
        }
    }
 
@@ -74,15 +78,15 @@ public class ServerClient implements Runnable, Connection {
         return name;
     }
 
-    public String getSurrname() {
-        return surrname;
+    public String getSurname() {
+        return surname;
     }
 
     public ClientConnectionEvent getConnection() {
         return connection;
     }
 
-    private void changeConncetionAndUpdate(ClientConnectionEvent connectionEvent) {
+    private void changeConnectionAndUpdate(ClientConnectionEvent connectionEvent) {
         this.connection = connectionEvent;
         this.logger.info("Client connection changed to: " + connectionEvent);
         this.observer.update(connection);
@@ -92,13 +96,13 @@ public class ServerClient implements Runnable, Connection {
         this.inFromClient.close();
         this.outToClient.close();
         this.socket.close();
-        changeConncetionAndUpdate(ClientConnectionEvent.DISCONENCTED);
+        changeConnectionAndUpdate(ClientConnectionEvent.DISCONENCTED);
         this.logger.info("Client connection closed");
         this.logger.debug("Client ID: " + this.id + " score: " + this.score + " / " + this.questions.size());
     }
 
     @Override
-    public void run() {
+    public ClientAnswers call() {
         try{
             sendQuestionCount();
             for(Question question : this.questions) {
@@ -107,11 +111,12 @@ public class ServerClient implements Runnable, Connection {
             }
             sendScore();
             quit();
-            return;
+            return new ClientAnswers(this.id, this.score, this.answers);
         } catch (IOException e) {
             this.logger.error(e);
         }
-        changeConncetionAndUpdate(ClientConnectionEvent.LOST);
+        changeConnectionAndUpdate(ClientConnectionEvent.LOST);
+        return null;
     }
 
     public void sendScore() throws IOException {
@@ -138,11 +143,12 @@ public class ServerClient implements Runnable, Connection {
         String answer = getFrom();
         if (!question.getAnswers().containsKey(answer)) throw new IOException();
         if(question.getCorrectAnswer().equals(answer)) this.score++;
+        this.answers.add(answer);
     }
 
     private void checkConnection() throws IOException {
         boolean connectionStatus = Connection.checkIfSourceIsActive(this.outToClient, this.inFromClient);
         //this.logger.debug("Client on " + this.socket.getInetAddress() + " connection status: " + this.connected);
-        if(!connectionStatus) changeConncetionAndUpdate(ClientConnectionEvent.LOST);
+        if(!connectionStatus) changeConnectionAndUpdate(ClientConnectionEvent.LOST);
     }
 }

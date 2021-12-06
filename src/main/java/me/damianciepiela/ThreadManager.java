@@ -1,6 +1,7 @@
 package me.damianciepiela;
 
 import me.damianciepiela.server.ClientConnectionEvent;
+import me.damianciepiela.server.FutureClient;
 import me.damianciepiela.server.ServerClient;
 
 import java.io.IOException;
@@ -11,20 +12,25 @@ import java.util.concurrent.Executors;
 
 public class ThreadManager {
 
-    private LoggerAdapter logger;
+    private final LoggerAdapter logger;
 
-    private ExecutorService executorService;
-    private int capacity;
+    private final ExecutorService executorService;
+    private final int capacity;
     private int currentSize = 0;
 
-    public ThreadManager(LoggerAdapter logger, int capacity) {
+    private final FileCondition answersDatabase;
+    private final FileCondition scoresDatabase;
+
+    public ThreadManager(LoggerAdapter logger, int capacity, FileCondition answersDatabase, FileCondition scoresDatabase) {
         this.logger = logger;
         this.executorService = Executors.newFixedThreadPool(capacity);
         this.capacity = capacity;
+        this.answersDatabase = answersDatabase;
+        this.scoresDatabase = scoresDatabase;
     }
 
     public void execute(ServerClient client) {
-        this.executorService.execute(client);
+        this.executorService.submit(new FutureClient(client, this.answersDatabase, this.scoresDatabase));
         this.logger.info("Starting thread for Client: " + client.getId());
     }
 

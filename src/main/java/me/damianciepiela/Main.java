@@ -3,7 +3,12 @@ package me.damianciepiela;
 import me.damianciepiela.client.Client;
 import me.damianciepiela.server.Server;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 public class Main {
 
@@ -21,13 +26,15 @@ public class Main {
      static void server(int port, int capacity) {
          LoggerAdapter loggerAdapter = createLogger(Server.class);
          try {
-             ThreadManager threadManager = new ThreadManager(createLogger(ThreadManager.class), capacity);
+             FileCondition answersDatabase = new FileCondition(getFile("bazaOdpowiedzi.txt"));
+             FileCondition scoresDatabase = new FileCondition(getFile("wyniki.txt"));
+             ThreadManager threadManager = new ThreadManager(createLogger(ThreadManager.class), capacity, answersDatabase, scoresDatabase);
              Server server = new Server(port, loggerAdapter, threadManager);
              server.loadQuestions("Pytania.txt");
              server.start();
              shutDownHook(server, loggerAdapter);
-        } catch (IOException | QuestionFormattingException e) {
-            loggerAdapter.error(e);
+        } catch (IOException | QuestionFormattingException | URISyntaxException e) {
+             loggerAdapter.error(e);
          }
      }
 
@@ -44,6 +51,12 @@ public class Main {
                  e.printStackTrace();
              }
          }));
+     }
+
+     static File getFile(String fileName) throws URISyntaxException {
+         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+         URI uri = Objects.requireNonNull(classloader.getResource(fileName)).toURI();
+         return Paths.get(uri).toFile();
      }
 
     public static void main(String[] args) {
