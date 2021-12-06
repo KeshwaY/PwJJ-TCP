@@ -34,14 +34,14 @@ public class Client implements Connection, Closable {
     public void setIdentity() throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Podaj numer albumu: ");
-        int id = scanner.nextInt();
+        String id = scanner.next();
         System.out.println("Podaj imie: ");
         String name = scanner.next();
         System.out.println("Podaj nazwisko: ");
         String surname = scanner.next();
 
         try {
-            sendTo(String.valueOf(id));
+            sendTo(id);
             sendTo(name);
             sendTo(surname);
         } catch (IOException e) {
