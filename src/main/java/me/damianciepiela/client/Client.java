@@ -61,11 +61,10 @@ public class Client implements Connection, Closable {
                         System.out.println("[" + entry.getKey() + "] " + entry.getValue());
                     }
                     String userInput;
-                    while (true) {
+                    do {
                         Scanner scanner = new Scanner(System.in);
                         userInput = scanner.next();
-                        if (answers.containsKey(userInput)) break;
-                    }
+                    } while (!answers.containsKey(userInput));
                     sendAnswer(userInput);
                 }
                 System.out.println(getScore());

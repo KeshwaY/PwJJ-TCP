@@ -104,6 +104,7 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
     @Override
     public ClientAnswers call() {
         try{
+            getIdentity();
             sendQuestionCount();
             for(Question question : this.questions) {
                 showQuestion(question);

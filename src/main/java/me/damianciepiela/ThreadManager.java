@@ -31,7 +31,7 @@ public class ThreadManager {
 
     public void execute(ServerClient client) {
         this.executorService.submit(new FutureClient(client, this.answersDatabase, this.scoresDatabase));
-        this.logger.info("Starting thread for Client: " + client.getId());
+        this.logger.info("Starting thread for Client: ");
     }
 
     public ServerClient createClient(Socket socket, List<Question> questionList) throws IOException {
