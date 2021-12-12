@@ -19,7 +19,7 @@ import java.util.Objects;
 public class Main {
 
     static void client(String address, int port) {
-        LoggerAdapter clientControllerlogger = createLogger(ClientTest.class);
+        LoggerAdapter clientControllerlogger = createLogger(ClientController.class);
         LoggerAdapter clientModelLogger = createLogger(ClientModel.class);
         LoggerAdapter clientViewLogger = createLogger(ClientView.class);
         try {
