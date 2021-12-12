@@ -1,4 +1,4 @@
-package me.damianciepiela;
+package me.damianciepiela.server;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,7 +19,7 @@ public class FileCondition {
    public void writeToFile(String line) {
         this.lock.lock();
        try {
-           BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(this.file));
+           BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(this.file, true));
            bufferedWriter.write(line);
            bufferedWriter.newLine();
            bufferedWriter.flush();
