@@ -2,7 +2,6 @@ package me.damianciepiela;
 
 import me.damianciepiela.client.ClientController;
 import me.damianciepiela.client.ClientModel;
-import me.damianciepiela.client.ClientTest;
 import me.damianciepiela.client.ClientView;
 import me.damianciepiela.server.FileCondition;
 import me.damianciepiela.server.QuestionFormattingException;
