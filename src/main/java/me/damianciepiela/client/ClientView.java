@@ -50,7 +50,7 @@ public final class ClientView extends ConsoleView {
     public String showQuestionAndGetAnswer(Question question) {
         show(question.description());
         show(question.answers());
-        return (String) getUserChoice(question.answers());
+        return getUserChoice(question.answers());
     }
 
 }
