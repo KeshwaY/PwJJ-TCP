@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 
 // TODO: change to callable
 // TODO: probably remove check connection to rely on try catch blocks
-public class ServerClient implements Callable<ClientAnswers>, Connection {
+public class ServerClient implements Callable<ClientAnswers> {
 
     private final LoggerAdapter logger;
     private final List<Question> questions;

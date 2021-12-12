@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public abstract class Model implements Connection {
+public abstract class Model {
 
     protected String getFrom(DataInputStream dataInputStream) throws IOException {
         return Connection.getFromSource(dataInputStream);
