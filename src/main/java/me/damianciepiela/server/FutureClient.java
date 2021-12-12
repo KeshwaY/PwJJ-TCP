@@ -1,7 +1,5 @@
 package me.damianciepiela.server;
 
-import me.damianciepiela.FileCondition;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
@@ -20,9 +18,9 @@ public class FutureClient extends FutureTask<ClientAnswers> {
     public void done() {
         try {
             ClientAnswers finalScore = this.get();
-            this.scoresDatabase.writeToFile(finalScore.getClientId() + ": " + finalScore.getScore());
-            StringBuilder stringBuilder = new StringBuilder(finalScore.getClientId() + ":\n");
-            for(String answer : finalScore.getAnswers()) {
+            this.scoresDatabase.writeToFile(finalScore.clientId() + ": " + finalScore.score());
+            StringBuilder stringBuilder = new StringBuilder(finalScore.clientId() + ":\n");
+            for(String answer : finalScore.answers()) {
                 stringBuilder.append(" ").append(answer).append("\n");
             }
             this.answersDatabase.writeToFile(stringBuilder.toString());

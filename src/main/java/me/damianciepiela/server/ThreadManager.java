@@ -1,8 +1,7 @@
-package me.damianciepiela;
+package me.damianciepiela.server;
 
-import me.damianciepiela.server.ClientConnectionEvent;
-import me.damianciepiela.server.FutureClient;
-import me.damianciepiela.server.ServerClient;
+import me.damianciepiela.ConnectionStatus;
+import me.damianciepiela.LoggerAdapter;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -40,7 +39,7 @@ public class ThreadManager {
             return null;
         }
         ServerClient serverClient = new ServerClient(socket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {
-            if(event.equals(ClientConnectionEvent.DISCONENCTED) || event.equals(ClientConnectionEvent.LOST)) {
+            if(event.equals(ConnectionStatus.DISCONNECTED) || event.equals(ConnectionStatus.LOST)) {
                 decreaseCurrentSize();
                 logTotalCurrentlyActive();
             }

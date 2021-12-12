@@ -1,4 +1,4 @@
-package me.damianciepiela;
+package me.damianciepiela.server;
 
 public class QuestionFormattingException extends Exception {
 

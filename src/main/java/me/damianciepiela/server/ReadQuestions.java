@@ -1,9 +1,13 @@
-package me.damianciepiela;
+package me.damianciepiela.server;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO: case when * is not found
 public interface ReadQuestions {
     static List<Question> loadQuestionsFromFile(String fileName) throws IOException, QuestionFormattingException {
         List<Question> questions = new ArrayList<>();

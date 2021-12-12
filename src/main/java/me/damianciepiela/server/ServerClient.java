@@ -1,10 +1,12 @@
 package me.damianciepiela.server;
 
 import me.damianciepiela.Connection;
+import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.LoggerAdapter;
-import me.damianciepiela.Question;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
     private final DataInputStream inFromClient;
     private final DataOutputStream outToClient;
 
-    private volatile ClientConnectionEvent connection;
+    private volatile ConnectionStatus connection;
     private int score = 0;
 
     private final List<String> answers = new ArrayList<>();
@@ -32,7 +34,7 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
     private String surname;
 
     public interface Observer {
-        void update(ClientConnectionEvent connectionEvent);
+        void update(ConnectionStatus connectionEvent);
     }
     private final Observer observer;
 
@@ -42,7 +44,7 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
         this.questions = questions;
         this.inFromClient = new DataInputStream(socket.getInputStream());
         this.outToClient = new DataOutputStream(socket.getOutputStream());
-        this.connection = ClientConnectionEvent.ALIVE;
+        this.connection = ConnectionStatus.ALIVE;
         this.observer = observer;
         this.logger.info("Client created");
     }
@@ -66,27 +68,15 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
            this.surname = getFrom();
        } catch (IOException e) {
            this.logger.error(e);
-           changeConnectionAndUpdate(ClientConnectionEvent.LOST);
+           changeConnectionAndUpdate(ConnectionStatus.LOST);
        }
    }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public ClientConnectionEvent getConnection() {
+    public ConnectionStatus getConnection() {
         return connection;
     }
 
-    private void changeConnectionAndUpdate(ClientConnectionEvent connectionEvent) {
+    private void changeConnectionAndUpdate(ConnectionStatus connectionEvent) {
         this.connection = connectionEvent;
         this.logger.info("Client connection changed to: " + connectionEvent);
         this.observer.update(connection);
@@ -96,7 +86,7 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
         this.inFromClient.close();
         this.outToClient.close();
         this.socket.close();
-        changeConnectionAndUpdate(ClientConnectionEvent.DISCONENCTED);
+        changeConnectionAndUpdate(ConnectionStatus.DISCONNECTED);
         this.logger.info("Client connection closed");
         this.logger.debug("Client ID: " + this.id + " score: " + this.score + " / " + this.questions.size());
     }
@@ -116,7 +106,7 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
         } catch (IOException e) {
             this.logger.error(e);
         }
-        changeConnectionAndUpdate(ClientConnectionEvent.LOST);
+        changeConnectionAndUpdate(ConnectionStatus.LOST);
         return null;
     }
 
@@ -132,9 +122,11 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
 
     public void showQuestion(Question question) throws IOException {
         checkConnection();
-        sendTo(question.getDescription());
-        for(Map.Entry<String, String> entry: question.getAnswers().entrySet()) {
+        sendTo(question.description());
+        for(Map.Entry<String, String> entry: question.answers().entrySet()) {
+            checkConnection();
             sendTo(entry.getKey());
+            checkConnection();
             sendTo(entry.getValue());
         }
     }
@@ -142,14 +134,14 @@ public class ServerClient implements Callable<ClientAnswers>, Connection {
     public void getAnswerAndCheck(Question question) throws IOException {
         checkConnection();
         String answer = getFrom();
-        if (!question.getAnswers().containsKey(answer)) throw new IOException();
-        if(question.getCorrectAnswer().equals(answer)) this.score++;
+        if (!question.answers().containsKey(answer)) throw new IOException();
+        if(question.correctAnswer().equals(answer)) this.score++;
         this.answers.add(answer);
     }
 
     private void checkConnection() throws IOException {
         boolean connectionStatus = Connection.checkIfSourceIsActive(this.outToClient, this.inFromClient);
         //this.logger.debug("Client on " + this.socket.getInetAddress() + " connection status: " + this.connected);
-        if(!connectionStatus) changeConnectionAndUpdate(ClientConnectionEvent.LOST);
+        if(!connectionStatus) changeConnectionAndUpdate(ConnectionStatus.LOST);
     }
 }
