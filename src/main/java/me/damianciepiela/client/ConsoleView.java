@@ -29,7 +29,7 @@ public abstract class ConsoleView implements View<String, String>, Logable {
     @Override
     public void show(Map<String, String> map) {
         this.logger.debug("Printing map entries to the user...");
-        for(Map.Entry<?, ?> entry : map.entrySet()) {
+        for(Map.Entry<String, String> entry : map.entrySet()) {
             System.out.println("[" + entry.getKey() + "] " + entry.getValue());
             this.logger.info("Showing entry to the user: " + entry.getKey());
         }
