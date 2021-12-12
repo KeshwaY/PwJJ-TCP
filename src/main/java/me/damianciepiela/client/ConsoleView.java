@@ -37,7 +37,7 @@ public abstract class ConsoleView implements View<String, String>, Logable {
     }
 
     @Override
-    public Object getUserChoice(Map<String, String> options) {
+    public String getUserChoice(Map<String, String> options) {
         while(true) {
             String userInput = this.getUserInput();
             if(validateUserChoice(options, userInput)) return userInput;
@@ -46,7 +46,7 @@ public abstract class ConsoleView implements View<String, String>, Logable {
     }
 
     @Override
-    public Boolean validateUserChoice(Map<String, String> options, Object userChoice) {
+    public Boolean validateUserChoice(Map<String, String> options, String userChoice) {
         return options.containsKey(userChoice);
     }
 
