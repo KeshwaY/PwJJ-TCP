@@ -6,7 +6,6 @@ import java.io.IOException;
 
 public interface Connection {
 
-    //TODO: handle sending maps
     static void sendToSource(DataOutputStream dataOutputStream, String text) throws IOException {
         dataOutputStream.writeUTF(text);
     }
@@ -14,7 +13,7 @@ public interface Connection {
     static String getFromSource(DataInputStream dataInputStream) throws IOException {
         return dataInputStream.readUTF();
     }
-// TODO: Secure connection, change ping to something else maybe sha256 encrypted string
+
     static boolean checkIfSourceIsActive(DataOutputStream dataOutputStream, DataInputStream dataInputStream) throws IOException {
         sendToSource(dataOutputStream, "ping");
         String fromSource = getFromSource(dataInputStream);
