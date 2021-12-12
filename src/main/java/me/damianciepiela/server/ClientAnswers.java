@@ -4,15 +4,19 @@ import java.util.List;
 
 public record ClientAnswers(String clientId, int score, List<String> answers) {
 
-    public String getClientId() {
+    @Override
+    public String clientId() {
         return clientId;
     }
 
-    public int getScore() {
+    @Override
+    public int score() {
         return score;
     }
 
-    public List<String> getAnswers() {
+    @Override
+    public List<String> answers() {
         return answers;
     }
+
 }
