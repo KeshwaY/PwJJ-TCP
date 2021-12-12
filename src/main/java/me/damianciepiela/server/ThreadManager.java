@@ -35,7 +35,7 @@ public class ThreadManager {
 
     public ServerClient createClient(Socket socket, List<Question> questionList) throws IOException {
         if(this.capacity < currentSize + 1) {
-            this.logger.error("Cloud not create Client object, server is full...");
+            this.logger.error("Could not create Client object, server is full...");
             return null;
         }
         ServerClient serverClient = new ServerClient(socket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {

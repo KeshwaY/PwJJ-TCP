@@ -56,7 +56,7 @@ public class ServerClient implements Callable<ClientAnswers> {
     }
 
     public void sendTo(String text) throws IOException {
-        this.logger.debug("Sending to content to Client on " + this.socket.getInetAddress() + ": " + text);
+        this.logger.debug("Sending content to the Client on " + this.socket.getInetAddress() + ": " + text);
         Connection.sendToSource(this.outToClient, text);
     }
 
