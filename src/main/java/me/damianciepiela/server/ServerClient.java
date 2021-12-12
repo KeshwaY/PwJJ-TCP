@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-// TODO: change to callable
 // TODO: probably remove check connection to rely on try catch blocks
 public class ServerClient implements Callable<ClientAnswers> {
 
