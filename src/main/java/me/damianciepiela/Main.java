@@ -1,10 +1,17 @@
 package me.damianciepiela;
 
-import me.damianciepiela.client.Client;
+import me.damianciepiela.client.ClientController;
+import me.damianciepiela.client.ClientModel;
+import me.damianciepiela.client.ClientTest;
+import me.damianciepiela.client.ClientView;
+import me.damianciepiela.server.FileCondition;
+import me.damianciepiela.server.QuestionFormattingException;
 import me.damianciepiela.server.Server;
+import me.damianciepiela.server.ThreadManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -13,13 +20,17 @@ import java.util.Objects;
 public class Main {
 
     static void client(String address, int port) {
-        LoggerAdapter loggerAdapter = createLogger(Client.class);
+        LoggerAdapter clientControllerlogger = createLogger(ClientTest.class);
+        LoggerAdapter clientModelLogger = createLogger(ClientModel.class);
+        LoggerAdapter clientViewLogger = createLogger(ClientView.class);
         try {
-            Client client = new Client(address, port, loggerAdapter);
+            ClientModel model = new ClientModel(clientModelLogger, new Socket(address, port));
+            ClientView view = new ClientView(clientViewLogger);
+            ClientController client = new ClientController(model, view, clientControllerlogger);
             client.start();
-            shutDownHook(client, loggerAdapter);
+            shutDownHook(client, clientControllerlogger);
         } catch (IOException e) {
-            loggerAdapter.error(e);
+            clientControllerlogger.error(e);
         }
     }
 
