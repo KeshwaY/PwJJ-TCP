@@ -1,5 +1,8 @@
 package me.damianciepiela.server;
-import me.damianciepiela.*;
+
+import me.damianciepiela.Closable;
+import me.damianciepiela.ConnectionStatus;
+import me.damianciepiela.LoggerAdapter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -34,7 +37,7 @@ public class Server implements Closable, ReadQuestions {
                 Socket socket = serverSocket.accept();
                 this.logger.info("Client connected, address: " + socket.getInetAddress());
                 ServerClient client = this.threadManager.createClient(socket, this.questions);
-                if(!client.getConnection().equals(ClientConnectionEvent.ALIVE)) continue;
+                if(!client.getConnection().equals(ConnectionStatus.ALIVE)) continue;
                 this.logger.info("Client connection established");
                 this.threadManager.execute(client);
             } catch (IOException e) {
