@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO: case when * is not found
 public interface ReadQuestions {
     static List<Question> loadQuestionsFromFile(String fileName) throws IOException, QuestionFormattingException {
         List<Question> questions = new ArrayList<>();
