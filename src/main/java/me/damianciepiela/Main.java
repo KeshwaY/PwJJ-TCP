@@ -3,15 +3,12 @@ package me.damianciepiela;
 import me.damianciepiela.client.ClientController;
 import me.damianciepiela.client.ClientModel;
 import me.damianciepiela.client.ClientView;
-import me.damianciepiela.server.FileCondition;
 import me.damianciepiela.server.QuestionFormattingException;
 import me.damianciepiela.server.Server;
-import me.damianciepiela.server.ThreadManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;

@@ -5,13 +5,10 @@ import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.Logable;
 import me.damianciepiela.LoggerAdapter;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 

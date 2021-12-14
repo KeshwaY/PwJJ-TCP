@@ -2,14 +2,10 @@ package me.damianciepiela;
 
 public enum ConnectionStatus {
     NEW_CONNECTION,
-    LOST,
-    DISCONNECTED,
     ALIVE,
     WAITING_FOR_QUESTION,
     SENDING_ANSWER,
     SENDING_ID,
-    ANSWER_RECEIVED,
-    ID_RECEIVED,
     WAITING_FOR_QUESTIONS_COUNT,
     REQUEST_RECOGNIZED,
     DATA_RECEIVED,

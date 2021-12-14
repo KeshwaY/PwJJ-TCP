@@ -1,16 +1,12 @@
 package me.damianciepiela.server;
 
-import me.damianciepiela.Connection;
 import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.LoggerAdapter;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
 
 // TODO: probably remove check connection to rely on try catch blocks
 public class ServerClient {
@@ -21,7 +17,7 @@ public class ServerClient {
     private final DatagramPacket receivePacket;
     private final DatagramPacket sendPacket;
 
-    private volatile ConnectionStatus connection;
+    private final ConnectionStatus connection;
 
     private int score = 0;
 

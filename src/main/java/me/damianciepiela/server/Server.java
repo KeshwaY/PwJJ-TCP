@@ -5,17 +5,16 @@ import me.damianciepiela.Connection;
 import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.LoggerAdapter;
 
-import javax.xml.crypto.Data;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.*;
-import java.util.ArrayList;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class Server implements Closable, ReadQuestions {
 
