@@ -4,10 +4,9 @@ import me.damianciepiela.Connection;
 import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.LoggerAdapter;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,9 @@ public class ServerClient implements Callable<ClientAnswers> {
     private final LoggerAdapter logger;
     private final List<Question> questions;
 
-    private final Socket socket;
-    private final DataInputStream inFromClient;
-    private final DataOutputStream outToClient;
+    private final DatagramPacket receivePacket;
+    private final DatagramPacket sendPacket;
+    private final DatagramSocket serverSocket;
 
     private volatile ConnectionStatus connection;
     private int score = 0;
@@ -37,26 +36,26 @@ public class ServerClient implements Callable<ClientAnswers> {
     }
     private final Observer observer;
 
-    public ServerClient(Socket socket, LoggerAdapter logger, List<Question> questions, Observer observer) throws IOException {
-        this.socket = socket;
+    public ServerClient(DatagramSocket serverSocket, DatagramPacket receivePacket, DatagramPacket sendPacket, LoggerAdapter logger, List<Question> questions, Observer observer) throws IOException {
+        this.receivePacket = receivePacket;
+        this.sendPacket = sendPacket;
+        this.serverSocket = serverSocket;
         this.logger = logger;
         this.questions = questions;
-        this.inFromClient = new DataInputStream(socket.getInputStream());
-        this.outToClient = new DataOutputStream(socket.getOutputStream());
         this.connection = ConnectionStatus.ALIVE;
         this.observer = observer;
         this.logger.info("Client created");
     }
 
-    public String getFrom() throws IOException {
-        String fromClient = Connection.getFromSource(this.inFromClient);
-        this.logger.debug("Got content from Client on " + this.socket.getInetAddress() + ": " + fromClient);
+    public String getFrom() throws IOException, ClassNotFoundException {
+        String fromClient = Connection.getServer(this.serverSocket, this.receivePacket, this.sendPacket);
+        this.logger.debug("Got content from Client on " + this.receivePacket.getAddress() + ": " + fromClient);
         return fromClient;
     }
 
-    public void sendTo(String text) throws IOException {
-        this.logger.debug("Sending content to the Client on " + this.socket.getInetAddress() + ": " + text);
-        Connection.sendToSource(this.outToClient, text);
+    public void sendTo(String text) throws IOException, ClassNotFoundException {
+        this.logger.debug("Sending content to the Client on " + this.sendPacket.getAddress() + ": " + text);
+        Connection.sendServer(this.serverSocket, this.receivePacket, this.sendPacket, text);
     }
 
    public void getIdentity() {
@@ -65,7 +64,7 @@ public class ServerClient implements Callable<ClientAnswers> {
            this.id = getFrom();
            this.name = getFrom();
            this.surname = getFrom();
-       } catch (IOException e) {
+       } catch (IOException | ClassNotFoundException e) {
            this.logger.error(e);
            changeConnectionAndUpdate(ConnectionStatus.LOST);
        }
@@ -82,9 +81,6 @@ public class ServerClient implements Callable<ClientAnswers> {
     }
 
     public void quit() throws IOException {
-        this.inFromClient.close();
-        this.outToClient.close();
-        this.socket.close();
         changeConnectionAndUpdate(ConnectionStatus.DISCONNECTED);
         this.logger.info("Client connection closed");
         this.logger.debug("Client ID: " + this.id + " score: " + this.score + " / " + this.questions.size());
@@ -102,45 +98,42 @@ public class ServerClient implements Callable<ClientAnswers> {
             sendScore();
             quit();
             return new ClientAnswers(this.id, this.score, this.answers);
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             this.logger.error(e);
         }
         changeConnectionAndUpdate(ConnectionStatus.LOST);
         return null;
     }
 
-    public void sendScore() throws IOException {
-        checkConnection();
+    public void sendScore() throws IOException, ClassNotFoundException {
+        //checkConnection();
         sendTo(this.score + " / " + this.questions.size());
     }
 
-    public void sendQuestionCount() throws IOException {
-        checkConnection();
+    public void sendQuestionCount() throws IOException, ClassNotFoundException {
+        //checkConnection();
         sendTo(String.valueOf(this.questions.size()));
     }
 
-    public void showQuestion(Question question) throws IOException {
-        checkConnection();
+    public void showQuestion(Question question) throws IOException, ClassNotFoundException {
+        //checkConnection();
+        System.out.println("test");
         sendTo(question.description());
+        System.out.println("ASD");
         for(Map.Entry<String, String> entry: question.answers().entrySet()) {
-            checkConnection();
+            //checkConnection();
             sendTo(entry.getKey());
-            checkConnection();
+            //checkConnection();
             sendTo(entry.getValue());
         }
     }
 
-    public void getAnswerAndCheck(Question question) throws IOException {
-        checkConnection();
+    public void getAnswerAndCheck(Question question) throws IOException, ClassNotFoundException {
+        //checkConnection();
         String answer = getFrom();
         if (!question.answers().containsKey(answer)) throw new IOException();
         if(question.correctAnswer().equals(answer)) this.score++;
         this.answers.add(answer);
     }
 
-    private void checkConnection() throws IOException {
-        boolean connectionStatus = Connection.checkIfSourceIsActive(this.outToClient, this.inFromClient);
-        //this.logger.debug("Client on " + this.socket.getInetAddress() + " connection status: " + this.connected);
-        if(!connectionStatus) changeConnectionAndUpdate(ConnectionStatus.LOST);
-    }
 }

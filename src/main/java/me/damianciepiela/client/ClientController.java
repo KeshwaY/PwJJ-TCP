@@ -23,19 +23,19 @@ public final class ClientController extends Controller<ClientModel, ClientView> 
             proceedWithTest(questionsCount);
             this.view.show(this.model.getFinalScore());
             close();
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println(e.getMessage());
             this.logger.error(e);
         }
     }
 
-    private void setClientIdentity() throws IOException {
+    private void setClientIdentity() throws IOException, ClassNotFoundException {
         this.view.show("Set your identity: ");
         Identity clientIdentity = this.view.getIdentityFromUser();
         this.model.sendIdentity(clientIdentity.id(), clientIdentity.name(), clientIdentity.surname());
     }
 
-    private void proceedWithTest(int questionsCount) throws IOException {
+    private void proceedWithTest(int questionsCount) throws IOException, ClassNotFoundException {
         Question question;
         for(int i = 0; i < questionsCount; i++) {
             question = this.model.getQuestion();

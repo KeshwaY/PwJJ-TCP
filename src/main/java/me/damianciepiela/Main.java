@@ -10,6 +10,7 @@ import me.damianciepiela.server.ThreadManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,7 +24,7 @@ public class Main {
         LoggerAdapter clientModelLogger = createLogger(ClientModel.class);
         LoggerAdapter clientViewLogger = createLogger(ClientView.class);
         try {
-            ClientModel model = new ClientModel(clientModelLogger, new Socket(address, port));
+            ClientModel model = new ClientModel(clientModelLogger, InetAddress.getByName(address), port);
             ClientView view = new ClientView(clientViewLogger);
             ClientController client = new ClientController(model, view, clientControllerlogger);
             client.start();

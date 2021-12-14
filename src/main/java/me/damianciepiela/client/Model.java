@@ -5,19 +5,17 @@ import me.damianciepiela.Connection;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 
 public abstract class Model {
 
-    protected String getFrom(DataInputStream dataInputStream) throws IOException {
-        return Connection.getFromSource(dataInputStream);
+    protected String getFrom(DatagramSocket socket, DatagramPacket receivePacket, DatagramPacket sendPacket) throws IOException, ClassNotFoundException {
+        return Connection.getClient(socket, receivePacket, sendPacket);
     }
 
-    protected void sendTo(DataOutputStream dataOutputStream, String message) throws IOException {
-        Connection.sendToSource(dataOutputStream, message);
-    }
-
-    protected boolean checkConnection(DataOutputStream dataOutputStream, DataInputStream dataInputStream) throws IOException{
-        return Connection.refreshConnection(dataOutputStream, dataInputStream);
+    protected void sendTo(DatagramSocket socket, DatagramPacket receivePacket, DatagramPacket sendPacket, String text) throws IOException, ClassNotFoundException {
+        Connection.sendClient(socket, receivePacket, sendPacket, text);
     }
 
 }

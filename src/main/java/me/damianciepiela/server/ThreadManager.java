@@ -4,6 +4,8 @@ import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.LoggerAdapter;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -33,12 +35,12 @@ public class ThreadManager {
         this.logger.info("Starting thread for Client: ");
     }
 
-    public ServerClient createClient(Socket socket, List<Question> questionList) throws IOException {
+    public ServerClient createClient(DatagramSocket serverSocket, DatagramPacket receivePacket, DatagramPacket sendPacket, List<Question> questionList) throws IOException {
         if(this.capacity < currentSize + 1) {
             this.logger.error("Could not create Client object, server is full...");
             return null;
         }
-        ServerClient serverClient = new ServerClient(socket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {
+        ServerClient serverClient = new ServerClient(serverSocket, receivePacket, sendPacket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {
             if(event.equals(ConnectionStatus.DISCONNECTED) || event.equals(ConnectionStatus.LOST)) {
                 decreaseCurrentSize();
                 logTotalCurrentlyActive();
