@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ThreadManager {
-
+/*
     private final LoggerAdapter logger;
 
     private final ExecutorService executorService;
@@ -77,4 +77,6 @@ public class ThreadManager {
     public void logTotalCurrentlyActive() {
         this.logger.info("Clients currently active: " + getTotalActive());
     }
+
+ */
 }

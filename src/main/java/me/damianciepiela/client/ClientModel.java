@@ -1,6 +1,7 @@
 package me.damianciepiela.client;
 
 import me.damianciepiela.Closable;
+import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.Logable;
 import me.damianciepiela.LoggerAdapter;
 
@@ -41,31 +42,39 @@ public final class ClientModel extends Model implements Logable, Closable {
         byte[] sendData = new byte[256];
 
         this.sendPacket = new DatagramPacket(sendData, sendData.length, this.serverAddress, port);
+        this.sendPacket.setData(ConnectionStatus.NEW_CONNECTION.name().getBytes());
         this.socket.send(sendPacket);
         this.receivePacket = new DatagramPacket(receiveData, receiveData.length);
         this.socket.receive(this.receivePacket);
+        this.sendPacket.setData(sendData);
     }
 
-    public void sendToServer(String message) throws IOException, ClassNotFoundException {
+    private void sendToServer(String message) throws IOException {
         sendTo(this.socket, this.receivePacket, this.sendPacket, message);
         this.logger.info("Sending content to the server: " + message);
     }
 
-    public String getFromServer() throws IOException, ClassNotFoundException {
-        //boolean connection = checkConnectionToServer();
-        //this.logger.info("Connection status: " + this.);
+    private void sendToServer(ConnectionStatus connectionStatus) throws IOException {
+        sendTo(this.socket, this.receivePacket, this.sendPacket, connectionStatus);
+        this.logger.info("Sending status to the server: " + connectionStatus.name());
+    }
+
+    private String getFromServer() throws IOException {
         String fromServer = getFrom(this.socket, this.receivePacket, this.sendPacket);
         this.logger.info("Got content from the server: " + fromServer);
         return fromServer;
     }
 
-    public void sendIdentity(String id, String name, String surname) throws IOException, ClassNotFoundException {
-        sendTo(this.socket, this.receivePacket, this.sendPacket, id);
-        sendTo(this.socket, this.receivePacket, this.sendPacket, name);
-        sendTo(this.socket, this.receivePacket, this.sendPacket, surname);
+    public void sendIdentity(String id, String name, String surname) throws IOException {
+        sendToServer(ConnectionStatus.SENDING_ID);
+        sendToServer(id);
+        sendToServer(name);
+        sendToServer(surname);
     }
 
-    public Question getQuestion() throws IOException, ClassNotFoundException {
+    public Question getQuestion(int id) throws IOException {
+        sendToServer(ConnectionStatus.WAITING_FOR_QUESTION);
+        sendToServer(String.valueOf(id));
         String description = getFromServer();
         Map<String, String> answers = new HashMap<>();
         for(int i = 0; i < 4; i++) {
@@ -76,13 +85,21 @@ public final class ClientModel extends Model implements Logable, Closable {
         return new Question(description, answers);
     }
 
-    public int getQuestionsCount() throws IOException, ClassNotFoundException {
+    public void sendAnswer(int id, String answer) throws IOException {
+        sendToServer(ConnectionStatus.SENDING_ANSWER);
+        sendToServer(String.valueOf(id));
+        sendToServer(answer);
+    }
+
+    public int getQuestionsCount() throws IOException {
+        sendToServer(ConnectionStatus.WAITING_FOR_QUESTIONS_COUNT);
         String fromServer = getFromServer();
         if(fromServer == null) throw new IOException();
         return Integer.parseInt(fromServer);
     }
 
-    public String getFinalScore() throws IOException, ClassNotFoundException {
+    public String getFinalScore() throws IOException {
+        sendToServer(ConnectionStatus.WAITING_FOR_SCORE);
         String fromServer = getFromServer();
         if(fromServer == null) throw new IOException();
         return fromServer;
@@ -90,6 +107,7 @@ public final class ClientModel extends Model implements Logable, Closable {
 
     @Override
     public void close() throws IOException {
+        sendToServer(ConnectionStatus.END);
         this.socket.close();
     }
 }

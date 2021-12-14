@@ -3,8 +3,8 @@ package me.damianciepiela.server;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-public class FutureClient extends FutureTask<ClientAnswers> {
-
+public class FutureClient {
+/*
     private final FileCondition answersDatabase;
     private final FileCondition scoresDatabase;
 
@@ -28,5 +28,7 @@ public class FutureClient extends FutureTask<ClientAnswers> {
             e.printStackTrace();
         }
     }
+
+ */
 
 }

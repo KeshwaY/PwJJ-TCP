@@ -38,9 +38,9 @@ public final class ClientController extends Controller<ClientModel, ClientView> 
     private void proceedWithTest(int questionsCount) throws IOException, ClassNotFoundException {
         Question question;
         for(int i = 0; i < questionsCount; i++) {
-            question = this.model.getQuestion();
+            question = this.model.getQuestion(i);
             String answer = this.view.showQuestionAndGetAnswer(question);
-            this.model.sendToServer(answer);
+            this.model.sendAnswer(i, answer);
         }
     }
 

@@ -37,10 +37,9 @@ public class Main {
      static void server(int port, int capacity) {
          LoggerAdapter loggerAdapter = createLogger(Server.class);
          try {
-             FileCondition answersDatabase = new FileCondition(getFile("bazaOdpowiedzi.txt"));
-             FileCondition scoresDatabase = new FileCondition(getFile("wyniki.txt"));
-             ThreadManager threadManager = new ThreadManager(createLogger(ThreadManager.class), capacity, answersDatabase, scoresDatabase);
-             Server server = new Server(port, loggerAdapter, threadManager);
+             File answersDatabase = getFile("bazaOdpowiedzi.txt");
+             File scoresDatabase = getFile("wyniki.txt");
+             Server server = new Server(port, loggerAdapter, capacity, answersDatabase, scoresDatabase);
              server.loadQuestions("Pytania.txt");
              server.start();
              shutDownHook(server, loggerAdapter);
