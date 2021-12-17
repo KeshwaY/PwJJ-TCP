@@ -1,8 +1,13 @@
 package me.damianciepiela.server;
 
-import java.util.Map;
+import java.util.List;
 
-public record Question(String description, String correctAnswer, Map<String, String> answers) {
+public record Question(String ID, String description, String correctAnswer, List<Answer> answers) {
+
+    @Override
+    public String ID() {
+        return ID;
+    }
 
     @Override
     public String description() {
@@ -14,7 +19,7 @@ public record Question(String description, String correctAnswer, Map<String, Str
     }
 
     @Override
-    public Map<String, String> answers() {
+    public List<Answer> answers() {
         return answers;
     }
 

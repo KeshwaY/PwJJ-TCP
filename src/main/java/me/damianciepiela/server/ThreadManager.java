@@ -17,19 +17,14 @@ public class ThreadManager {
     private final int capacity;
     private int currentSize = 0;
 
-    private final FileCondition answersDatabase;
-    private final FileCondition scoresDatabase;
-
-    public ThreadManager(LoggerAdapter logger, int capacity, FileCondition answersDatabase, FileCondition scoresDatabase) {
+    public ThreadManager(LoggerAdapter logger, int capacity) {
         this.logger = logger;
         this.executorService = Executors.newFixedThreadPool(capacity);
         this.capacity = capacity;
-        this.answersDatabase = answersDatabase;
-        this.scoresDatabase = scoresDatabase;
     }
 
-    public void execute(ServerClient client) {
-        this.executorService.submit(new FutureClient(client, this.answersDatabase, this.scoresDatabase));
+    public void execute(ServerClient client, DatabaseConnection databaseConnection) {
+        this.executorService.submit(new FutureClient(client, databaseConnection));
         this.logger.info("Starting thread for Client: ");
     }
 

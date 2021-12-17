@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 // TODO: probably remove check connection to rely on try catch blocks
 public class ServerClient implements Callable<ClientAnswers> {
@@ -26,7 +28,7 @@ public class ServerClient implements Callable<ClientAnswers> {
     private volatile ConnectionStatus connection;
     private int score = 0;
 
-    private final List<String> answers = new ArrayList<>();
+    private final List<ClientAnswer> answers = new ArrayList<>();
 
     private String id;
     private String name;
@@ -101,7 +103,7 @@ public class ServerClient implements Callable<ClientAnswers> {
             }
             sendScore();
             quit();
-            return new ClientAnswers(this.id, this.score, this.answers);
+            return new ClientAnswers(this.id, this.name, this.surname, this.score, this.answers);
         } catch (IOException e) {
             this.logger.error(e);
         }
@@ -122,7 +124,9 @@ public class ServerClient implements Callable<ClientAnswers> {
     public void showQuestion(Question question) throws IOException {
         checkConnection();
         sendTo(question.description());
-        for(Map.Entry<String, String> entry: question.answers().entrySet()) {
+        Map<String, String> questionMap = IntStream.range(0, question.answers().size()).boxed()
+                .collect(Collectors.toMap(ai -> question.answers().get(ai).charRepresentation(), ai -> question.answers().get(ai).description()));
+        for(Map.Entry<String, String> entry: questionMap.entrySet()) {
             checkConnection();
             sendTo(entry.getKey());
             checkConnection();
@@ -133,9 +137,13 @@ public class ServerClient implements Callable<ClientAnswers> {
     public void getAnswerAndCheck(Question question) throws IOException {
         checkConnection();
         String answer = getFrom();
-        if (!question.answers().containsKey(answer)) throw new IOException();
+        if (question.answers().stream().noneMatch(qAnswer -> qAnswer.charRepresentation().equals(answer))) throw new IOException();
         if(question.correctAnswer().equals(answer)) this.score++;
-        this.answers.add(answer);
+        Answer clientAnswer = question.answers().stream()
+                .filter(ans -> ans.charRepresentation().equals(answer))
+                .findAny()
+                .orElseThrow(IOException::new);
+        this.answers.add(new ClientAnswer(question.ID(), clientAnswer.ID()));
     }
 
     private void checkConnection() throws IOException {

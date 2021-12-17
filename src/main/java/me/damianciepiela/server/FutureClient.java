@@ -1,30 +1,32 @@
 package me.damianciepiela.server;
 
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 public class FutureClient extends FutureTask<ClientAnswers> {
 
-    private final FileCondition answersDatabase;
-    private final FileCondition scoresDatabase;
+    DatabaseConnection databaseConnection;
 
-    public FutureClient(ServerClient callable, FileCondition answersDatabase, FileCondition scoresDatabase) {
+    public FutureClient(ServerClient callable, DatabaseConnection databaseConnection) {
         super(callable);
-        this.answersDatabase = answersDatabase;
-        this.scoresDatabase = scoresDatabase;
+        this.databaseConnection = databaseConnection;
     }
 
     @Override
     public void done() {
         try {
             ClientAnswers finalScore = this.get();
-            this.scoresDatabase.writeToFile(finalScore.clientId() + ": " + finalScore.score());
-            StringBuilder stringBuilder = new StringBuilder(finalScore.clientId() + ":\n");
-            for(String answer : finalScore.answers()) {
-                stringBuilder.append(" ").append(answer).append("\n");
+            System.out.println(finalScore);
+            this.databaseConnection.addStudent(finalScore.clientId(), finalScore.clientName(), finalScore.clientSurname());
+            this.databaseConnection.saveStudentScore(finalScore.clientId(), String.valueOf(finalScore.score()));
+            List<ClientAnswer> clientAnswerList = finalScore.answers();
+            for(ClientAnswer clientAnswer : clientAnswerList) {
+                this.databaseConnection.saveStudentAnswer(finalScore.clientId(), clientAnswer.questionId(), clientAnswer.answerId());
             }
-            this.answersDatabase.writeToFile(stringBuilder.toString());
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | SQLException e) {
             e.printStackTrace();
         }
     }

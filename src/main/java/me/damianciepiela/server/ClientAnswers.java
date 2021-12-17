@@ -2,11 +2,20 @@ package me.damianciepiela.server;
 
 import java.util.List;
 
-public record ClientAnswers(String clientId, int score, List<String> answers) {
+public record ClientAnswers(String clientId, String clientName, String clientSurname, int score, List<ClientAnswer> answers) {
 
     @Override
     public String clientId() {
         return clientId;
+    }
+
+    @Override
+    public String clientName() {
+        return clientName;
+    }
+
+    public String clientSurname() {
+        return clientSurname;
     }
 
     @Override
@@ -15,7 +24,7 @@ public record ClientAnswers(String clientId, int score, List<String> answers) {
     }
 
     @Override
-    public List<String> answers() {
+    public List<ClientAnswer> answers() {
         return answers;
     }
 

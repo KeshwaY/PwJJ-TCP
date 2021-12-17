@@ -3,18 +3,11 @@ package me.damianciepiela;
 import me.damianciepiela.client.ClientController;
 import me.damianciepiela.client.ClientModel;
 import me.damianciepiela.client.ClientView;
-import me.damianciepiela.server.FileCondition;
-import me.damianciepiela.server.QuestionFormattingException;
-import me.damianciepiela.server.Server;
-import me.damianciepiela.server.ThreadManager;
+import me.damianciepiela.server.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.Objects;
+import java.sql.SQLException;
 
 public class Main {
 
@@ -33,17 +26,16 @@ public class Main {
         }
     }
 
-     static void server(int port, int capacity) {
+     static void server(int port, int capacity, String databaseHost, String username, String password) {
          LoggerAdapter loggerAdapter = createLogger(Server.class);
          try {
-             FileCondition answersDatabase = new FileCondition(getFile("bazaOdpowiedzi.txt"));
-             FileCondition scoresDatabase = new FileCondition(getFile("wyniki.txt"));
-             ThreadManager threadManager = new ThreadManager(createLogger(ThreadManager.class), capacity, answersDatabase, scoresDatabase);
-             Server server = new Server(port, loggerAdapter, threadManager);
-             server.loadQuestions("Pytania.txt");
+             DatabaseConnection mysqlConnection = new DatabaseConnection("jdbc:" + databaseHost, username, password);
+             ThreadManager threadManager = new ThreadManager(createLogger(ThreadManager.class), capacity);
+             Server server = new Server(port, loggerAdapter, threadManager, mysqlConnection);
+             server.loadQuestions(mysqlConnection);
              server.start();
              shutDownHook(server, loggerAdapter);
-        } catch (IOException | QuestionFormattingException | URISyntaxException e) {
+         } catch (IOException | SQLException e) {
              loggerAdapter.error(e);
          }
      }
@@ -57,29 +49,31 @@ public class Main {
              try {
                  logger.info(logger.getName() + " is shutting down...");
                  closable.close();
-             } catch (IOException e) {
+             } catch (IOException | SQLException e) {
                  e.printStackTrace();
              }
          }));
      }
 
-     static File getFile(String fileName) throws URISyntaxException {
-         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-         URI uri = Objects.requireNonNull(classloader.getResource(fileName)).toURI();
-         return Paths.get(uri).toFile();
-     }
+
 
     public static void main(String[] args) {
         if (args.length == 0) return;
 
         // TODO: change static values to args interpretation
         if(args[0].equals("Client")) {
-            client("localhost", 887);
+            String serverHost = args[1];
+            int serverPort = Integer.parseInt(args[2]);
+            client(serverHost, serverPort);
         }
 
         if(args[0].equals("Server")) {
-            int capacity = Integer.parseInt(args[1]);
-            server(887, capacity);
+            int serverPort = Integer.parseInt(args[1]);
+            int capacity = Integer.parseInt(args[2]);
+            String databaseHost = args[3];
+            String username = args[4];
+            String password = args[5];
+            server(serverPort, capacity, databaseHost, username, password);
         }
     }
 
