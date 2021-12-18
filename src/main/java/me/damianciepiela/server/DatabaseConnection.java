@@ -83,6 +83,10 @@ public class DatabaseConnection {
         return statement.executeQuery(sql);
     }
 
+    public boolean checkIfStudentExists(String studentId) throws SQLException {
+        return execute("SELECT * FROM student WHERE ID = " + studentId);
+    }
+
     public List<Question> getQuestions() throws SQLException {
         List<Question> questions = new LinkedList<>();
         int questionCount = getQuestionCount();
