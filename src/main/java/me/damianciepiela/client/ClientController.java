@@ -6,7 +6,8 @@ import me.damianciepiela.Logable;
 import me.damianciepiela.LoggerAdapter;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class ClientController extends Controller<ClientModel, ClientView> implements Logable, Closable {
 

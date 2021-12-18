@@ -4,7 +4,6 @@ import me.damianciepiela.Logable;
 import me.damianciepiela.LoggerAdapter;
 
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.*;
 
 public abstract class ConsoleView implements View<String, String>, Logable {

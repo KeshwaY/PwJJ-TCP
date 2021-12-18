@@ -3,7 +3,9 @@ package me.damianciepiela;
 import me.damianciepiela.client.ClientController;
 import me.damianciepiela.client.ClientModel;
 import me.damianciepiela.client.ClientView;
-import me.damianciepiela.server.*;
+import me.damianciepiela.server.DatabaseConnection;
+import me.damianciepiela.server.Server;
+import me.damianciepiela.server.ThreadManager;
 
 import java.io.IOException;
 import java.net.Socket;

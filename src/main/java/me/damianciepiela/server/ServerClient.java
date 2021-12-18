@@ -76,7 +76,7 @@ public class ServerClient implements Callable<ClientAnswers> {
            this.surname = getFrom();
 
            if (this.databaseConnection.checkIfStudentExists(this.id)) {
-               this.socket.close();
+               //this.socket.close();
            }
        } catch (IOException e) {
            this.logger.error(e);

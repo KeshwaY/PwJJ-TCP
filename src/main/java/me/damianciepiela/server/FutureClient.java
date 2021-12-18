@@ -1,7 +1,6 @@
 package me.damianciepiela.server;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;

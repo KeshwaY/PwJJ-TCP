@@ -21,7 +21,7 @@ public class DatabaseConnection {
             return correctAnswer;
         }
 
-    };
+    }
 
     public DatabaseConnection(String host, String user, String password) throws SQLException {
         this.connection = DriverManager.getConnection(host, user, password);
@@ -84,7 +84,7 @@ public class DatabaseConnection {
     }
 
     public boolean checkIfStudentExists(String studentId) throws SQLException {
-        return execute("SELECT * FROM student WHERE ID = " + studentId);
+        return checkForValue("SELECT * FROM student WHERE ID = " + studentId);
     }
 
     public List<Question> getQuestions() throws SQLException {
