@@ -61,7 +61,7 @@ public class DatabaseConnection {
     }
 
     private void createStudentAnswerTable() throws SQLException {
-        execute("CREATE TABLE IF NOT EXISTS student_answer (id INTEGER AUTO_INCREMENT PRIMARY KEY, studentID VARCHAR(8) NOT NULL, questionID INTEGER NOT NULL, answerID INTEGER NOT NULL, FOREIGN KEY (studentID) REFERENCES student(ID), FOREIGN KEY (questionID) REFERENCES question(ID), FOREIGN KEY (answerID) REFERENCES answer(ID) )");
+        execute("CREATE TABLE IF NOT EXISTS student_answer (id INTEGER AUTO_INCREMENT PRIMARY KEY, studentID VARCHAR(8) NOT NULL, questionID INTEGER NOT NULL, answerID INTEGER, FOREIGN KEY (studentID) REFERENCES student(ID), FOREIGN KEY (questionID) REFERENCES question(ID), FOREIGN KEY (answerID) REFERENCES answer(ID) )");
     }
 
     private void createStudentScoreTable() throws SQLException {
