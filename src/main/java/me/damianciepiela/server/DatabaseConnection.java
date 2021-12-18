@@ -68,9 +68,9 @@ public class DatabaseConnection {
         execute("CREATE TABLE IF NOT EXISTS student_score (studentID VARCHAR(8) NOT NULL, score INTEGER NOT NULL, PRIMARY KEY (studentID), FOREIGN KEY (studentID) REFERENCES student(ID) )");
     }
 
-    private boolean checkForValue(String sql) throws SQLException{
-        Statement statement = this.connection.createStatement();
-        return statement.execute(sql);
+    private boolean checkForValue(String sql) throws SQLException {
+        ResultSet resultSet = executeQuery(sql);
+        return resultSet.next();
     }
 
     private boolean execute(String sql) throws SQLException {
