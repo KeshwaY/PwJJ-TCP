@@ -19,6 +19,7 @@ public class FutureClient extends FutureTask<ClientAnswers> {
     public void done() {
         try {
             ClientAnswers finalScore = this.get();
+            if (finalScore == null) return;
             System.out.println(finalScore);
             this.databaseConnection.addStudent(finalScore.clientId(), finalScore.clientName(), finalScore.clientSurname());
             this.databaseConnection.saveStudentScore(finalScore.clientId(), String.valueOf(finalScore.score()));
