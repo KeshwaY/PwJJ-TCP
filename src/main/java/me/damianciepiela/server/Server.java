@@ -40,7 +40,7 @@ public class Server implements Closable {
             try {
                 Socket socket = serverSocket.accept();
                 this.logger.info("Client connected, address: " + socket.getInetAddress());
-                ServerClient client = this.threadManager.createClient(socket, this.questions);
+                ServerClient client = this.threadManager.createClient(this.databaseConnection, socket, this.questions);
                 if(!client.getConnection().equals(ConnectionStatus.ALIVE)) continue;
                 this.logger.info("Client connection established");
                 this.threadManager.execute(client, this.databaseConnection);

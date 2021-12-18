@@ -28,12 +28,12 @@ public class ThreadManager {
         this.logger.info("Starting thread for Client: ");
     }
 
-    public ServerClient createClient(Socket socket, List<Question> questionList) throws IOException {
+    public ServerClient createClient(DatabaseConnection databaseConnection, Socket socket, List<Question> questionList) throws IOException {
         if(this.capacity < currentSize + 1) {
             this.logger.error("Could not create Client object, server is full...");
             return null;
         }
-        ServerClient serverClient = new ServerClient(socket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {
+        ServerClient serverClient = new ServerClient(databaseConnection, socket, new LoggerAdapter(ServerClient.class), questionList, (event) -> {
             if(event.equals(ConnectionStatus.DISCONNECTED) || event.equals(ConnectionStatus.LOST)) {
                 decreaseCurrentSize();
                 logTotalCurrentlyActive();

@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +38,15 @@ public class ServerClient implements Callable<ClientAnswers> {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Future<String> userInput;
 
+    private final DatabaseConnection databaseConnection;
+
     public interface Observer {
         void update(ConnectionStatus connectionEvent);
     }
     private final Observer observer;
 
-    public ServerClient(Socket socket, LoggerAdapter logger, List<Question> questions, Observer observer) throws IOException {
+    public ServerClient(DatabaseConnection databaseConnection, Socket socket, LoggerAdapter logger, List<Question> questions, Observer observer) throws IOException {
+        this.databaseConnection = databaseConnection;
         this.socket = socket;
         this.logger = logger;
         this.questions = questions;
@@ -70,9 +74,15 @@ public class ServerClient implements Callable<ClientAnswers> {
            this.id = getFrom();
            this.name = getFrom();
            this.surname = getFrom();
+
+           if (this.databaseConnection.checkIfStudentExists(this.id)) {
+               this.socket.close();
+           }
        } catch (IOException e) {
            this.logger.error(e);
            changeConnectionAndUpdate(ConnectionStatus.LOST);
+       } catch (SQLException e) {
+        this.logger.error(e);
        }
    }
 
