@@ -11,7 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,6 +33,9 @@ public class ServerClient implements Callable<ClientAnswers> {
     private String id;
     private String name;
     private String surname;
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private Future<String> userInput;
 
     public interface Observer {
         void update(ConnectionStatus connectionEvent);
@@ -99,7 +102,7 @@ public class ServerClient implements Callable<ClientAnswers> {
             sendQuestionCount();
             for(Question question : this.questions) {
                 showQuestion(question);
-                getAnswerAndCheck(question);
+                waitForAnswerAndCheck(question);
             }
             sendScore();
             quit();
@@ -109,6 +112,31 @@ public class ServerClient implements Callable<ClientAnswers> {
         }
         changeConnectionAndUpdate(ConnectionStatus.LOST);
         return null;
+    }
+
+    public void waitForAnswerAndCheck(Question question) throws IOException {
+        try {
+            Runnable r = () -> {
+                try {
+                    getAnswerAndCheck(question);
+                } catch (IOException e) {
+                    logger.error(e);
+                }
+            };
+            Future<?> f = executorService.submit(r);
+            f.get(10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            this.logger.info("Question " + question.ID() + " was not answered by client");
+            markQuestionUnanswered(question);
+            this.userInput.cancel(true);
+            forceClientToNextQuestion();
+        } catch (ExecutionException | InterruptedException e) {
+            this.logger.error(e);
+        }
+    }
+
+    private void forceClientToNextQuestion() throws IOException {
+        sendTo(ConnectionStatus.FORCE_NEXT_QUESTION.name());
     }
 
     public void sendScore() throws IOException {
@@ -136,14 +164,30 @@ public class ServerClient implements Callable<ClientAnswers> {
 
     public void getAnswerAndCheck(Question question) throws IOException {
         checkConnection();
-        String answer = getFrom();
-        if (question.answers().stream().noneMatch(qAnswer -> qAnswer.charRepresentation().equals(answer))) throw new IOException();
-        if(question.correctAnswer().equals(answer)) this.score++;
-        Answer clientAnswer = question.answers().stream()
-                .filter(ans -> ans.charRepresentation().equals(answer))
-                .findAny()
-                .orElseThrow(IOException::new);
-        this.answers.add(new ClientAnswer(question.ID(), clientAnswer.ID()));
+        this.userInput = this.executorService.submit(() -> {
+            try {
+                return getFrom();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+        try {
+            String answer = this.userInput.get();
+            if (question.answers().stream().noneMatch(qAnswer -> qAnswer.charRepresentation().equals(answer))) throw new IOException();
+            if(question.correctAnswer().equals(answer)) this.score++;
+            Answer clientAnswer = question.answers().stream()
+                    .filter(ans -> ans.charRepresentation().equals(answer))
+                    .findAny()
+                    .orElseThrow(IOException::new);
+            this.answers.add(new ClientAnswer(question.ID(), clientAnswer.ID()));
+        } catch (ExecutionException | InterruptedException | CancellationException e) {
+            this.logger.error(e);
+        }
+    }
+
+    private void markQuestionUnanswered(Question question) {
+        this.answers.add(new ClientAnswer(question.ID(), null));
     }
 
     private void checkConnection() throws IOException {
