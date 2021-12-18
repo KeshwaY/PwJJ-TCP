@@ -1,14 +1,17 @@
 package me.damianciepiela.client;
 
 import me.damianciepiela.Closable;
+import me.damianciepiela.ConnectionStatus;
 import me.damianciepiela.Logable;
 import me.damianciepiela.LoggerAdapter;
 
 import java.io.IOException;
+import java.util.concurrent.*;
 
 public final class ClientController extends Controller<ClientModel, ClientView> implements Logable, Closable {
 
     private final LoggerAdapter logger;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     public ClientController(ClientModel model, ClientView view, LoggerAdapter logger) {
         this.view = view;
@@ -38,9 +41,14 @@ public final class ClientController extends Controller<ClientModel, ClientView> 
     private void proceedWithTest(int questionsCount) throws IOException {
         Question question;
         for(int i = 0; i < questionsCount; i++) {
+            System.out.println("test");
             question = this.model.getQuestion();
-            String answer = this.view.showQuestionAndGetAnswer(question);
-            this.model.sendToServer(answer);
+            ServerTimer timer = new ServerTimer(this.model, (String serverFlag) -> {
+               if(serverFlag.equals(ConnectionStatus.FORCE_NEXT_QUESTION.name())) this.view.cancelWaitingForUserInput();
+            });
+            this.executorService.submit(timer);
+            String userInput = this.view.showQuestionAndGetAnswer(question);
+            if(userInput != null) this.model.sendToServer(userInput);
         }
     }
 

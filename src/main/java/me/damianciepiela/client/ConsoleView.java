@@ -5,10 +5,13 @@ import me.damianciepiela.LoggerAdapter;
 
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.*;
 
 public abstract class ConsoleView implements View<String, String>, Logable {
 
     protected final LoggerAdapter logger;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private Future<String> userInput;
 
     public ConsoleView(LoggerAdapter loggerAdapter) {
         this.logger = loggerAdapter;
@@ -16,8 +19,18 @@ public abstract class ConsoleView implements View<String, String>, Logable {
 
     @Override
     public String getUserInput() {
-        Scanner scanner = new Scanner(System.in);
-        return scanner.nextLine();
+        this.userInput = this.executorService.submit(new ReadUserInputTask());
+        String input = null;
+        try {
+            input = this.userInput.get();
+        } catch (ExecutionException | InterruptedException | CancellationException e) {
+            this.logger.error(e);
+        }
+        return input;
+    }
+
+    public void cancelWaitingForUserInput() {
+        this.userInput.cancel(true);
     }
 
     @Override
@@ -40,9 +53,11 @@ public abstract class ConsoleView implements View<String, String>, Logable {
     public String getUserChoice(Map<String, String> options) {
         while(true) {
             String userInput = this.getUserInput();
+            if(userInput == null) break;
             if(validateUserChoice(options, userInput)) return userInput;
             this.show("Invalid input, try again");
         }
+        return null;
     }
 
     @Override
